@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TS3 Server Web</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--accent2:#388bfd;--green:#3fb950;--red:#f85149;--yellow:#d29922;--hover:#21262d;--shadow:0 2px 8px rgba(0,0,0,0.3)}
+[data-theme="light"]{--bg:#f6f8fa;--card:#ffffff;--border:#d0d7de;--text:#1f2328;--text2:#656d76;--accent:#0969da;--accent2:#0550ae;--green:#1a7f37;--red:#cf222e;--yellow:#9a6700;--hover:#f3f4f6;--shadow:0 2px 8px rgba(0,0,0,0.08)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:all .3s}
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.logo{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:600}
+.logo svg{width:28px;height:28px;fill:var(--accent)}
+.header-actions{display:flex;align-items:center;gap:12px}
+.btn{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px;transition:all .2s;text-decoration:none}
+.btn:hover{background:var(--hover);border-color:var(--accent)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-icon{padding:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.btn-icon svg{width:18px;height:18px}
+.container{max-width:1200px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-title svg{width:18px;height:18px;fill:var(--accent)}
+.card-body{padding:20px}
+.status-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.status-item{display:flex;flex-direction:column;gap:4px}
+.status-label{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.status-value{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:500}
+.badge-green{background:rgba(63,185,80,.15);color:var(--green)}
+.badge-red{background:rgba(248,81,73,.15);color:var(--red)}
+.badge-yellow{background:rgba(210,153,34,.15);color:var(--yellow)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot-red{background:var(--red);box-shadow:0 0 6px var(--red)}
+.connect-section{grid-column:1/-1}
+.connect-card{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff}
+.connect-card .card-body{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.connect-info h3{font-size:18px;margin-bottom:4px}
+.connect-info p{opacity:.85;font-size:14px}
+.connect-actions{display:flex;gap:10px}
+.connect-actions .btn{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(4px)}
+.connect-actions .btn:hover{background:rgba(255,255,255,.35)}
+.channels,.users{grid-column:span 1}
+.channel-tree{list-style:none;font-size:14px}
+.channel-tree li{margin:2px 0}
+.channel-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s}
+.channel-item:hover{background:var(--hover)}
+.channel-item svg{width:16px;height:16px;fill:var(--text2);flex-shrink:0}
+.channel-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.channel-count{font-size:12px;color:var(--text2);background:var(--hover);padding:1px 6px;border-radius:8px}
+.channel-children{list-style:none;padding-left:20px;border-left:1px solid var(--border);margin-left:10px}
+.toggle-icon{width:16px;height:16px;transition:transform .2s;fill:var(--text2)}
+.toggle-icon.collapsed{transform:rotate(-90deg)}
+.user-list{display:flex;flex-direction:column;gap:4px}
+.user-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;transition:background .15s}
+.user-item:hover{background:var(--hover)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-channel{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-time{font-size:12px;color:var(--text2);white-space:nowrap}
+.refresh-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.refresh-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text2)}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--border);padding:12px 20px;border-radius:8px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .3s;z-index:1000;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:32px;color:var(--text2);font-size:14px}
+.monitor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.monitor-item{background:var(--hover);border-radius:8px;padding:14px;text-align:center}
+.monitor-value{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.monitor-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.monitor-bar{height:4px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden}
+.monitor-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s ease}
+.progress-green .monitor-bar-fill{background:var(--green)}
+.progress-yellow .monitor-bar-fill{background:var(--yellow)}
+.progress-red .monitor-bar-fill{background:var(--red)}
+.download-section{grid-column:1/-1}
+.download-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.download-item{display:flex;align-items:center;gap:12px;padding:16px;background:var(--hover);border-radius:8px;text-decoration:none;color:var(--text);transition:all .2s;border:1px solid transparent}
+.download-item:hover{border-color:var(--accent);transform:translateY(-2px)}
+.download-icon{width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.download-icon svg{width:24px;height:24px;fill:#fff}
+.download-info{flex:1}
+.download-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.download-size{font-size:12px;color:var(--text2)}
+@media(max-width:768px){.container{grid-template-columns:1fr;padding:16px}.channels,.users,.download-section{grid-column:1/-1}.connect-card .card-body{flex-direction:column;text-align:center}.connect-actions{justify-content:center}.monitor-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+    TS3 Web
+  </div>
+  <div class="header-actions">
+    <div class="refresh-indicator"><span class="refresh-dot"></span>自动刷新</div>
+    <button class="btn btn-icon" onclick="toggleTheme()" title="切换主题">
+      <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="connect-section">
+    <div class="card connect-card">
+      <div class="card-body">
+        <div class="connect-info">
+          <h3 id="server-name">TeamSpeak 3 Server</h3>
+          <p id="connect-address">加载中...</p>
+        </div>
+        <div class="connect-actions">
+          <button class="btn" onclick="copyAddress()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            复制地址
+          </button>
+          <button class="btn" onclick="launchClient()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+            启动客户端
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card status-card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+        服务器状态
+      </div>
+      <div class="refresh-indicator"><span class="refresh-dot"></span>实时</div>
+    </div>
+    <div class="card-body">
+      <div class="status-grid" id="status-grid">
+        <div class="loading"><div class="spinner"></div>加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card users">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        在线用户
+      </div>
+      <span class="badge badge-green" id="user-count">0</span>
+    </div>
+    <div class="card-body">
+      <div class="user-list" id="user-list">
+        <div class="loading"><div class="spinner"></div>加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        网络监控
+      </div>
+      <div class="refresh-indicator"><span class="refresh-dot"></span>实时</div>
+    </div>
+    <div class="card-body">
+      <div class="monitor-grid" id="monitor-grid">
+        <div class="loading"><div class="spinner"></div>加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card channels">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        频道列表
+      </div>
+      <span class="badge badge-green" id="channel-count">0</span>
+    </div>
+    <div class="card-body">
+      <ul class="channel-tree" id="channel-tree">
+        <div class="loading"><div class="spinner"></div>加载中...</div>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card download-section">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        客户端下载
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="download-grid">
+        <a href="https://www.teamspeak.com/downloads" target="_blank" class="download-item">
+          <div class="download-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16.525 13.707c-.131-.821-.666-1.511-1.359-1.905-.693-.394-1.497-.458-2.234-.177-.248.094-.486.229-.678.41l-.147.153c-.178.19-.34.394-.486.612-.146.218-.276.448-.389.688-.113.24-.21.489-.291.745-.081.256-.146.518-.194.786-.048.268-.08.54-.096.814-.016.274-.016.549 0 .823.016.274.048.546.096.814.048.268.113.53.194.786.081.256.178.505.291.745.113.24.24.47.389.688.146.218.308.422.486.612l.147.153c.192.181.43.316.678.41.737.281 1.541.217 2.234-.177.693-.394 1.228-1.084 1.359-1.905.131-.821.024-1.675-.296-2.382-.32-.707-.858-1.259-1.526-1.562-.668-.303-1.428-.342-2.122-.108-.694.234-1.278.718-1.618 1.354-.34.636-.413 1.38-.203 2.062.21.682.688 1.244 1.312 1.544.624.3 1.348.308 1.976.022.628-.286 1.118-.824 1.34-1.488.222-.664.176-1.388-.126-2.022-.302-.634-.842-1.126-1.508-1.362-.666-.236-1.416-.208-2.06.078-.644.286-1.144.818-1.392 1.482-.248.664-.236 1.398.034 2.056.27.658.784 1.178 1.426 1.464.642.286 1.372.324 2.046.106.674-.218 1.218-.698 1.534-1.324.316-.626.398-1.356.228-2.034-.17-.678-.588-1.26-1.158-1.614-.57-.354-1.256-.458-1.902-.286-.646.172-1.198.584-1.544 1.142-.346.558-.454 1.234-.3 1.872.154.638.544 1.176 1.084 1.496.54.32 1.186.396 1.796.21.61-.186 1.102-.618 1.378-1.178.276-.56.314-1.212.104-1.796-.21-.584-.65-1.052-1.22-1.282-.57-.23-1.222-.214-1.778.044-.556.258-.978.738-1.158 1.334-.18.596-.108 1.248.196 1.78.304.532.822.9 1.434 1.014.612.114 1.258-.03 1.756-.396.498-.366.816-.934.876-1.564.06-.63-.134-1.262-.54-1.74-.406-.478-.996-.768-1.636-.794-.64-.026-1.268.194-1.74.614-.472.42-.754 1.012-.78 1.652-.026.64.194 1.268.614 1.74.42.472 1.012.754 1.652.78z"/></svg>
+          </div>
+          <div class="download-info">
+            <div class="download-name">Windows</div>
+            <div class="download-size">64-bit 客户端</div>
+          </div>
+        </a>
+        <a href="https://www.teamspeak.com/downloads" target="_blank" class="download-item">
+          <div class="download-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <div class="download-info">
+            <div class="download-name">macOS</div>
+            <div class="download-size">客户端下载</div>
+          </div>
+        </a>
+        <a href="https://www.teamspeak.com/downloads" target="_blank" class="download-item">
+          <div class="download-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <div class="download-info">
+            <div class="download-name">Linux</div>
+            <div class="download-size">客户端下载</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+let serverConfig = {};
+let refreshTimer;
+
+function formatTime(seconds) {
+  if (!seconds || seconds < 0) return '-';
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (d > 0) return `${d}天 ${h}小时`;
+  if (h > 0) return `${h}小时 ${m}分`;
+  return `${m}分钟`;
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+async function fetchJSON(url) {
+  const res = await fetch(API + url);
+  return res.json();
+}
+
+async function loadConfig() {
+  const { host, voicePort } = await fetchJSON('/api/config');
+  serverConfig = { host, voicePort };
+  document.getElementById('connect-address').textContent = `${host}:${voicePort}`;
+}
+
+async function loadStatus() {
+  const { success, data, error } = await fetchJSON('/api/status');
+  const grid = document.getElementById('status-grid');
+  if (!success) {
+    grid.innerHTML = `<div class="empty">连接失败: ${error}</div>`;
+    return;
+  }
+  document.getElementById('server-name').textContent = data.name;
+  const usagePercent = Math.round((data.clientsOnline / data.maxClients) * 100);
+  const progressClass = usagePercent > 80 ? 'progress-red' : usagePercent > 60 ? 'progress-yellow' : 'progress-green';
+  grid.innerHTML = `
+    <div class="status-item">
+      <span class="status-label">状态</span>
+      <span class="status-value"><span class="dot ${data.status === 'online' ? 'dot-green' : 'dot-red'}"></span>${data.status === 'online' ? '运行中' : '离线'}</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">在线人数</span>
+      <span class="status-value">${data.clientsOnline} / ${data.maxClients}</span>
+      <div class="monitor-bar ${progressClass}"><div class="monitor-bar-fill" style="width:${usagePercent}%"></div></div>
+    </div>
+    <div class="status-item">
+      <span class="status-label">运行时间</span>
+      <span class="status-value">${formatTime(data.uptime)}</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">版本</span>
+      <span class="status-value" style="font-size:13px">${data.version}</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">上传流量</span>
+      <span class="status-value">${formatBytes(data.bandwidthUp)}</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">下载流量</span>
+      <span class="status-value">${formatBytes(data.bandwidthDown)}</span>
+    </div>
+  `;
+  updateMonitor(data);
+}
+
+async function loadChannels() {
+  const { success, data } = await fetchJSON('/api/channels');
+  const tree = document.getElementById('channel-tree');
+  if (!success || !data.length) {
+    tree.innerHTML = '<div class="empty">暂无频道</div>';
+    return;
+  }
+  document.getElementById('channel-count').textContent = data.length;
+  tree.innerHTML = renderChannelTree(data);
+}
+
+function renderChannelTree(channels) {
+  return channels.map(ch => {
+    const hasChildren = ch.children && ch.children.length > 0;
+    return `
+      <li>
+        <div class="channel-item" onclick="toggleChannel(this)">
+          ${hasChildren ? '<svg class="toggle-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>' : '<span style="width:16px"></span>'}
+          <svg viewBox="0 0 24 24"><path d="${ch.maxClients === '-1' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z' : 'M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z'}"/></svg>
+          <span class="channel-name">${escapeHtml(ch.name)}</span>
+          ${ch.maxClients !== '-1' ? `<span class="channel-count">${ch.maxClients}</span>` : ''}
+        </div>
+        ${hasChildren ? `<ul class="channel-children">${renderChannelTree(ch.children)}</ul>` : ''}
+      </li>
+    `;
+  }).join('');
+}
+
+function toggleChannel(el) {
+  const children = el.nextElementSibling;
+  if (!children) return;
+  const icon = el.querySelector('.toggle-icon');
+  if (children.style.display === 'none') {
+    children.style.display = '';
+    icon?.classList.remove('collapsed');
+  } else {
+    children.style.display = 'none';
+    icon?.classList.add('collapsed');
+  }
+}
+
+async function loadClients() {
+  const { success, data } = await fetchJSON('/api/clients');
+  const list = document.getElementById('user-list');
+  document.getElementById('user-count').textContent = data?.length || 0;
+  if (!success || !data.length) {
+    list.innerHTML = '<div class="empty">暂无在线用户</div>';
+    return;
+  }
+  list.innerHTML = data.map(c => `
+    <div class="user-item">
+      <div class="user-avatar">${escapeHtml(c.nickname.charAt(0).toUpperCase())}</div>
+      <div class="user-info">
+        <div class="user-name">${escapeHtml(c.nickname)}</div>
+        <div class="user-channel">在线 ${formatTime(c.connectedTime / 1000)}</div>
+      </div>
+      <span class="user-time">${c.platform || ''}</span>
+    </div>
+  `).join('');
+}
+
+function updateMonitor(data) {
+  const grid = document.getElementById('monitor-grid');
+  grid.innerHTML = `
+    <div class="monitor-item">
+      <div class="monitor-value">${formatBytes(data.bandwidthUp)}</div>
+      <div class="monitor-label">总上传流量</div>
+    </div>
+    <div class="monitor-item">
+      <div class="monitor-value">${formatBytes(data.bandwidthDown)}</div>
+      <div class="monitor-label">总下载流量</div>
+    </div>
+    <div class="monitor-item">
+      <div class="monitor-value">${formatNumber(data.packetsUp)}</div>
+      <div class="monitor-label">发送数据包</div>
+    </div>
+    <div class="monitor-item">
+      <div class="monitor-value">${formatNumber(data.packetsDown)}</div>
+      <div class="monitor-label">接收数据包</div>
+    </div>
+  `;
+}
+
+function formatNumber(num) {
+  if (!num) return '0';
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toString();
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function copyAddress() {
+  const addr = `${serverConfig.host}:${serverConfig.voicePort}`;
+  navigator.clipboard.writeText(addr).then(() => showToast('地址已复制'));
+}
+
+function launchClient() {
+  const url = `ts3server://${serverConfig.host}?port=${serverConfig.voicePort}`;
+  window.location.href = url;
+  showToast('正在启动 TeamSpeak 客户端...');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+}
+
+async function refreshAll() {
+  await Promise.all([loadStatus(), loadChannels(), loadClients()]);
+}
+
+async function init() {
+  initTheme();
+  await loadConfig();
+  await refreshAll();
+  refreshTimer = setInterval(refreshAll, 5000);
+}
+
+init();
+</script>
+</body>
+</html>
