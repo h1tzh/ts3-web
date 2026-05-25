@@ -61,8 +61,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
 .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
 .user-info{flex:1;min-width:0}
 .user-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-channel{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-time{font-size:12px;color:var(--text2);white-space:nowrap}
+.user-channel{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-channel svg{flex-shrink:0}
+.user-meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.user-latency{font-size:12px;font-weight:500;padding:1px 6px;border-radius:4px}
+.latency-good{color:var(--green);background:rgba(63,185,80,.1)}
+.latency-ok{color:var(--yellow);background:rgba(210,153,34,.1)}
+.latency-bad{color:var(--red);background:rgba(248,81,73,.1)}
+.user-time{font-size:11px;color:var(--text2)}
 .refresh-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
 .refresh-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -97,7 +103,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
 <div class="header">
   <div class="logo">
     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-    TS3 Web
+    <span id="site-name">TS3 Web</span>
   </div>
   <div class="header-actions">
     <div class="refresh-indicator"><span class="refresh-dot"></span>自动刷新</div>
@@ -197,34 +203,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
       </div>
     </div>
     <div class="card-body">
-      <div class="download-grid">
-        <a href="https://www.teamspeak.com/downloads" target="_blank" class="download-item">
-          <div class="download-icon">
-            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16.525 13.707c-.131-.821-.666-1.511-1.359-1.905-.693-.394-1.497-.458-2.234-.177-.248.094-.486.229-.678.41l-.147.153c-.178.19-.34.394-.486.612-.146.218-.276.448-.389.688-.113.24-.21.489-.291.745-.081.256-.146.518-.194.786-.048.268-.08.54-.096.814-.016.274-.016.549 0 .823.016.274.048.546.096.814.048.268.113.53.194.786.081.256.178.505.291.745.113.24.24.47.389.688.146.218.308.422.486.612l.147.153c.192.181.43.316.678.41.737.281 1.541.217 2.234-.177.693-.394 1.228-1.084 1.359-1.905.131-.821.024-1.675-.296-2.382-.32-.707-.858-1.259-1.526-1.562-.668-.303-1.428-.342-2.122-.108-.694.234-1.278.718-1.618 1.354-.34.636-.413 1.38-.203 2.062.21.682.688 1.244 1.312 1.544.624.3 1.348.308 1.976.022.628-.286 1.118-.824 1.34-1.488.222-.664.176-1.388-.126-2.022-.302-.634-.842-1.126-1.508-1.362-.666-.236-1.416-.208-2.06.078-.644.286-1.144.818-1.392 1.482-.248.664-.236 1.398.034 2.056.27.658.784 1.178 1.426 1.464.642.286 1.372.324 2.046.106.674-.218 1.218-.698 1.534-1.324.316-.626.398-1.356.228-2.034-.17-.678-.588-1.26-1.158-1.614-.57-.354-1.256-.458-1.902-.286-.646.172-1.198.584-1.544 1.142-.346.558-.454 1.234-.3 1.872.154.638.544 1.176 1.084 1.496.54.32 1.186.396 1.796.21.61-.186 1.102-.618 1.378-1.178.276-.56.314-1.212.104-1.796-.21-.584-.65-1.052-1.22-1.282-.57-.23-1.222-.214-1.778.044-.556.258-.978.738-1.158 1.334-.18.596-.108 1.248.196 1.78.304.532.822.9 1.434 1.014.612.114 1.258-.03 1.756-.396.498-.366.816-.934.876-1.564.06-.63-.134-1.262-.54-1.74-.406-.478-.996-.768-1.636-.794-.64-.026-1.268.194-1.74.614-.472.42-.754 1.012-.78 1.652-.026.64.194 1.268.614 1.74.42.472 1.012.754 1.652.78z"/></svg>
-          </div>
-          <div class="download-info">
-            <div class="download-name">Windows</div>
-            <div class="download-size">64-bit 客户端</div>
-          </div>
-        </a>
-        <a href="https://www.teamspeak.com/downloads" target="_blank" class="download-item">
-          <div class="download-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-          </div>
-          <div class="download-info">
-            <div class="download-name">macOS</div>
-            <div class="download-size">客户端下载</div>
-          </div>
-        </a>
-        <a href="https://www.teamspeak.com/downloads" target="_blank" class="download-item">
-          <div class="download-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-          </div>
-          <div class="download-info">
-            <div class="download-name">Linux</div>
-            <div class="download-size">客户端下载</div>
-          </div>
-        </a>
+      <div class="download-grid" id="download-grid">
+        <div class="loading"><div class="spinner"></div>加载中...</div>
       </div>
     </div>
   </div>
@@ -261,9 +241,11 @@ async function fetchJSON(url) {
 }
 
 async function loadConfig() {
-  const { host, voicePort } = await fetchJSON('/api/config');
-  serverConfig = { host, voicePort };
+  const { siteName, host, voicePort, downloads } = await fetchJSON('/api/config');
+  serverConfig = { host, voicePort, downloads };
+  document.getElementById('site-name').textContent = siteName;
   document.getElementById('connect-address').textContent = `${host}:${voicePort}`;
+  renderDownloads(downloads);
 }
 
 async function loadStatus() {
@@ -360,11 +342,23 @@ async function loadClients() {
       <div class="user-avatar">${escapeHtml(c.nickname.charAt(0).toUpperCase())}</div>
       <div class="user-info">
         <div class="user-name">${escapeHtml(c.nickname)}</div>
-        <div class="user-channel">在线 ${formatTime(c.connectedTime / 1000)}</div>
+        <div class="user-channel">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          ${escapeHtml(c.channelName || '未知频道')}
+        </div>
       </div>
-      <span class="user-time">${c.platform || ''}</span>
+      <div class="user-meta">
+        <span class="user-latency ${getLatencyClass(c.latency)}">${c.latency || 0}ms</span>
+        <span class="user-time">${c.platform || ''}</span>
+      </div>
     </div>
   `).join('');
+}
+
+function getLatencyClass(ms) {
+  if (ms <= 50) return 'latency-good';
+  if (ms <= 100) return 'latency-ok';
+  return 'latency-bad';
 }
 
 function updateMonitor(data) {
@@ -387,6 +381,26 @@ function updateMonitor(data) {
       <div class="monitor-label">接收数据包</div>
     </div>
   `;
+}
+
+function renderDownloads(downloads) {
+  const grid = document.getElementById('download-grid');
+  const items = [
+    { name: 'Windows', url: downloads.windows, icon: 'M3 3h18v18H3V3zm16.525 13.707c-.131-.821-.666-1.511-1.359-1.905-.693-.394-1.497-.458-2.234-.177-.248.094-.486.229-.678.41l-.147.153c-.178.19-.34.394-.486.612-.146.218-.276.448-.389.688-.113.24-.21.489-.291.745-.081.256-.146.518-.194.786-.048.268-.08.54-.096.814-.016.274-.016.549 0 .823.016.274.048.546.096.814.048.268.113.53.194.786.081.256.178.505.291.745.113.24.24.47.389.688.146.218.308.422.486.612l.147.153c.192.181.43.316.678.41.737.281 1.541.217 2.234-.177.693-.394 1.228-1.084 1.359-1.905.131-.821.024-1.675-.296-2.382-.32-.707-.858-1.259-1.526-1.562-.668-.303-1.428-.342-2.122-.108-.694.234-1.278.718-1.618 1.354-.34.636-.413 1.38-.203 2.062.21.682.688 1.244 1.312 1.544.624.3 1.348.308 1.976.022.628-.286 1.118-.824 1.34-1.488.222-.664.176-1.388-.126-2.022-.302-.634-.842-1.126-1.508-1.362-.666-.236-1.416-.208-2.06.078-.644.286-1.144.818-1.392 1.482-.248.664-.236 1.398.034 2.056.27.658.784 1.178 1.426 1.464.642.286 1.372.324 2.046.106.674-.218 1.218-.698 1.534-1.324.316-.626.398-1.356.228-2.034-.17-.678-.588-1.26-1.158-1.614-.57-.354-1.256-.458-1.902-.286-.646.172-1.198.584-1.544 1.142-.346.558-.454 1.234-.3 1.872.154.638.544 1.176 1.084 1.496.54.32 1.186.396 1.796.21.61-.186 1.102-.618 1.378-1.178.276-.56.314-1.212.104-1.796-.21-.584-.65-1.052-1.22-1.282-.57-.23-1.222-.214-1.778.044-.556.258-.978.738-1.158 1.334-.18.596-.108 1.248.196 1.78.304.532.822.9 1.434 1.014.612.114 1.258-.03 1.756-.396.498-.366.816-.934.876-1.564.06-.63-.134-1.262-.54-1.74-.406-.478-.996-.768-1.636-.794-.64-.026-1.268.194-1.74.614-.472.42-.754 1.012-.78 1.652-.026.64.194 1.268.614 1.74.42.472 1.012.754 1.652.78z' },
+    { name: 'macOS', url: downloads.macos, icon: 'M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z' },
+    { name: 'Linux', url: downloads.linux, icon: 'M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.368 1.884 1.43.199.021.402-.021.602-.067.4-.136.802-.402 1.242-.803.44-.401.94-.935 1.57-1.433.63-.498 1.445-.935 2.318-1.067.872-.135 1.816.065 2.655.601.336.2.626.467.839.802.213.334.345.734.345 1.134 0 .4-.132.802-.4 1.134-.268.334-.67.602-1.134.734-.465.135-.998.135-1.463 0-.466-.132-.867-.4-1.135-.734-.16-.199-.332-.423-.509-.655-.177.232-.355.456-.509.655-.268.334-.67.602-1.134.734-.466.135-.998.135-1.464 0-.465-.132-.866-.4-1.134-.734-.268-.334-.4-.735-.4-1.134 0-.4.132-.802.4-1.134.268-.334.67-.602 1.134-.734.466-.135.998-.135 1.464 0 .464.132.866.4 1.134.734.177.232.349.456.51.655.176-.232.354-.456.509-.655.268-.334.67-.602 1.134-.734.466-.135.998-.135 1.464 0 .464.132.866.4 1.134.734.268.334.4.735.4 1.134 0 .4-.132.802-.4 1.134-.268.334-.67.602-1.134.734-.466.135-.998.135-1.464 0-.465-.132-.866-.4-1.134-.734a3.722 3.722 0 01-.345-1.134c0-.4.132-.802.4-1.134.268-.334.67-.602 1.134-.734z' }
+  ];
+  grid.innerHTML = items.map(item => `
+    <a href="${escapeHtml(item.url)}" target="_blank" class="download-item">
+      <div class="download-icon">
+        <svg viewBox="0 0 24 24"><path d="${item.icon}"/></svg>
+      </div>
+      <div class="download-info">
+        <div class="download-name">${item.name}</div>
+        <div class="download-size">客户端下载</div>
+      </div>
+    </a>
+  `).join('');
 }
 
 function formatNumber(num) {
