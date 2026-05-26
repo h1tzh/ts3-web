@@ -22,10 +22,13 @@ async function getTs3() {
   if (MOCK) throw new Error('MOCK模式');
   if (ts3Instance) return ts3Instance;
   try {
+    console.log('正在连接TS3:', TS3_CONFIG.host, TS3_CONFIG.queryport);
     ts3Instance = await TeamSpeak.connect(TS3_CONFIG);
+    console.log('TS3连接成功');
     ts3Instance.on('close', () => { ts3Instance = null; });
     return ts3Instance;
   } catch (err) {
+    console.error('TS3连接失败:', err.message);
     ts3Instance = null;
     throw err;
   }
@@ -66,20 +69,24 @@ const MOCK_DATA = {
 };
 
 async function fetchServerData() {
+  console.log('fetchServerData 执行, MOCK:', MOCK);
   if (MOCK) {
     cache.status = MOCK_DATA.status;
     cache.channels = MOCK_DATA.channels;
     cache.clients = MOCK_DATA.clients;
     cache.lastUpdate = Date.now();
+    console.log('MOCK数据已加载');
     return;
   }
   try {
+    console.log('开始获取TS3数据...');
     const ts3 = await getTs3();
     const [info, channels, clients] = await Promise.all([
       ts3.serverInfo(),
       ts3.channelList(),
       ts3.clientList()
     ]);
+    console.log('TS3数据获取成功:', info.virtualserver_name, info.virtualserver_clientsonline);
     const channelMap = {};
     channels.forEach(ch => { channelMap[ch.cid] = ch.name; });
     cache.status = {
@@ -124,6 +131,7 @@ async function fetchServerData() {
     }
     cache.clients = clientList;
     cache.lastUpdate = Date.now();
+    console.log('数据缓存完成');
   } catch (err) {
     console.error('获取TS3数据失败:', err.message);
   }
@@ -135,7 +143,8 @@ fetchServerData();
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/status', (req, res) => {
-  if (cache.status) return res.json({ success: true, data: cache.status });
+  console.log('API /api/status called, cache.status:', cache.status);
+  if (cache.status && Object.keys(cache.status).length > 0) return res.json({ success: true, data: cache.status });
   res.json({ success: false, error: '等待数据加载' });
 });
 
