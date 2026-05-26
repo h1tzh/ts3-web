@@ -478,9 +478,9 @@ function renderChannelTree(channels) {
       <li>
         <div class="channel-item" onclick="toggleChannel(this)">
           ${hasChildren ? '<svg class="toggle-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>' : '<span style="width:16px"></span>'}
-          <svg viewBox="0 0 24 24"><path d="${ch.maxClients === '-1' ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z' : 'M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z'}"/></svg>
+          <svg viewBox="0 0 24 24"><path d="${ch.maxClients == -1 ? 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z' : 'M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z'}"/></svg>
           <span class="channel-name">${escapeHtml(ch.name)}</span>
-          ${ch.maxClients !== '-1' ? `<span class="channel-count">${ch.maxClients}</span>` : ''}
+          ${ch.maxClients != -1 && ch.maxClients !== '-1' ? `<span class="channel-count">${ch.maxClients}</span>` : ''}
         </div>
         ${hasChildren ? `<ul class="channel-children">${renderChannelTree(ch.children)}</ul>` : ''}
       </li>
