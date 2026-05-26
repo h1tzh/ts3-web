@@ -409,6 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
 
 <script>
 const API = '';
+const API_KEY = '__API_KEY__';
 let serverConfig = {};
 let refreshTimer;
 
@@ -431,7 +432,9 @@ function formatBytes(bytes) {
 }
 
 async function fetchJSON(url) {
-  const res = await fetch(API + url);
+  const separator = url.includes('?') ? '&' : '?';
+  const keyParam = API_KEY ? `${separator}key=${API_KEY}` : '';
+  const res = await fetch(API + url + keyParam);
   return res.json();
 }
 

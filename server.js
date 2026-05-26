@@ -139,19 +139,28 @@ async function fetchServerData() {
 setInterval(fetchServerData, 10000);
 fetchServerData();
 
+const API_KEY = process.env.API_KEY || '';
+
+function authMiddleware(req, res, next) {
+  if (!API_KEY) return next();
+  const key = req.query.key || req.headers['x-api-key'];
+  if (key === API_KEY) return next();
+  res.status(401).json({ success: false, error: '未授权访问' });
+}
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/api/status', (req, res) => {
+app.get('/api/status', authMiddleware, (req, res) => {
   if (cache.status && Object.keys(cache.status).length > 0) return res.json({ success: true, data: cache.status });
   res.json({ success: false, error: '等待数据加载' });
 });
 
-app.get('/api/channels', (req, res) => {
+app.get('/api/channels', authMiddleware, (req, res) => {
   if (cache.channels) return res.json({ success: true, data: cache.channels });
   res.json({ success: false, error: '等待数据加载' });
 });
 
-app.get('/api/clients', (req, res) => {
+app.get('/api/clients', authMiddleware, (req, res) => {
   if (cache.clients) return res.json({ success: true, data: cache.clients });
   res.json({ success: false, error: '等待数据加载' });
 });

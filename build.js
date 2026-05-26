@@ -1,24 +1,34 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 
 console.log('开始构建...');
 
+const apiKey = process.env.API_KEY || '';
+
+const srcPath = path.join(__dirname, 'public', 'index.src.html');
 const htmlPath = path.join(__dirname, 'public', 'index.html');
-let html = fs.readFileSync(htmlPath, 'utf-8');
+
+let html = fs.readFileSync(srcPath, 'utf-8');
+
+html = html.replace('__API_KEY__', apiKey);
 
 const scriptRegex = /<script>([\s\S]*?)<\/script>/g;
 let match;
 let count = 0;
+const matches = [];
 
 while ((match = scriptRegex.exec(html)) !== null) {
-  const originalCode = match[1];
-  
-  if (originalCode.trim().length < 100) continue;
+  matches.push({ content: match[1], index: match.index, length: match[0].length });
+}
+
+for (const m of matches) {
+  if (m.content.trim().length < 100) continue;
   
   console.log(`混淆第 ${++count} 段脚本...`);
   
-  const obfuscatedCode = JavaScriptObfuscator.obfuscate(originalCode, {
+  const obfuscatedCode = JavaScriptObfuscator.obfuscate(m.content, {
     compact: true,
     controlFlowFlattening: true,
     controlFlowFlatteningThreshold: 0.75,
@@ -48,10 +58,10 @@ while ((match = scriptRegex.exec(html)) !== null) {
     unicodeEscapeSequence: false
   }).getObfuscatedCode();
   
-  html = html.replace(originalCode, '\n' + obfuscatedCode + '\n');
+  html = html.replace(m.content, '\n' + obfuscatedCode + '\n');
 }
 
-const outputPath = path.join(__dirname, 'public', 'index.html');
-fs.writeFileSync(outputPath, html, 'utf-8');
+fs.writeFileSync(htmlPath, html, 'utf-8');
 
 console.log(`构建完成！混淆了 ${count} 段脚本`);
+console.log(`API Key: ${apiKey ? '已注入' : '未设置（无需鉴权）'}`);
