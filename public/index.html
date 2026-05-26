@@ -8,6 +8,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--accent2:#388bfd;--green:#3fb950;--red:#f85149;--yellow:#d29922;--hover:#21262d;--shadow:0 2px 8px rgba(0,0,0,0.3)}
 [data-theme="light"]{--bg:#f6f8fa;--card:#ffffff;--border:#d0d7de;--text:#1f2328;--text2:#656d76;--accent:#0969da;--accent2:#0550ae;--green:#1a7f37;--red:#cf222e;--yellow:#9a6700;--hover:#f3f4f6;--shadow:0 2px 8px rgba(0,0,0,0.08)}
+[data-theme="auto"][data-theme-real="light"]{--bg:#f6f8fa;--card:#ffffff;--border:#d0d7de;--text:#1f2328;--text2:#656d76;--accent:#0969da;--accent2:#0550ae;--green:#1a7f37;--red:#cf222e;--yellow:#9a6700;--hover:#f3f4f6;--shadow:0 2px 8px rgba(0,0,0,0.08)}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:all .3s}
 .header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
 .logo{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:600}
@@ -44,7 +45,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
 .connect-actions{display:flex;gap:10px}
 .connect-actions .btn{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(4px)}
 .connect-actions .btn:hover{background:rgba(255,255,255,.35)}
-.channels,.users{grid-column:span 1}
+.channels,.users,.download-section{grid-column:span 1}
 .channel-tree{list-style:none;font-size:14px}
 .channel-tree li{margin:2px 0}
 .channel-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;transition:background .15s}
@@ -87,7 +88,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
 .progress-green .monitor-bar-fill{background:var(--green)}
 .progress-yellow .monitor-bar-fill{background:var(--yellow)}
 .progress-red .monitor-bar-fill{background:var(--red)}
-.download-section{grid-column:1/-1}
 .download-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .download-item{display:flex;align-items:center;gap:12px;padding:16px;background:var(--hover);border-radius:8px;text-decoration:none;color:var(--text);transition:all .2s;border:1px solid transparent}
 .download-item:hover{border-color:var(--accent);transform:translateY(-2px)}
@@ -96,7 +96,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
 .download-info{flex:1}
 .download-name{font-weight:600;font-size:14px;margin-bottom:2px}
 .download-size{font-size:12px;color:var(--text2)}
-@media(max-width:768px){.container{grid-template-columns:1fr;padding:16px}.channels,.users,.download-section{grid-column:1/-1}.connect-card .card-body{flex-direction:column;text-align:center}.connect-actions{justify-content:center}.monitor-grid{grid-template-columns:repeat(2,1fr)}}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:640px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-header h3{font-size:16px;font-weight:600}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.guide-steps{display:flex;flex-direction:column;gap:20px}
+.guide-step{display:flex;gap:14px}
+.step-number{width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.step-content{flex:1;min-width:0}
+.step-content h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.step-content p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:6px}
+.step-content a{color:var(--accent);text-decoration:none}
+.step-content a:hover{text-decoration:underline}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.8;overflow-x:auto;margin:8px 0}
+.code-block code{color:var(--text)}
+.code-comment{color:var(--text2)}
+.guide-tip{background:rgba(210,153,34,.1);border-left:3px solid var(--yellow);padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:var(--text);margin:8px 0}
+.guide-tip code{background:var(--hover);padding:1px 4px;border-radius:3px;font-size:11px}
+.guide-faq{margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.guide-faq h4{font-size:14px;font-weight:600;margin-bottom:12px}
+.faq-item{margin-bottom:12px;font-size:13px}
+.faq-item strong{display:block;margin-bottom:4px}
+.faq-item p{color:var(--text2);line-height:1.5}
+.faq-item code{background:var(--hover);padding:1px 4px;border-radius:3px;font-size:12px}
+.step-content code{background:var(--hover);padding:1px 4px;border-radius:3px;font-size:12px}
+@media(max-width:768px){.container{grid-template-columns:1fr;padding:16px}.channels,.users,.download-section{grid-column:1/-1}.connect-card .card-body{flex-direction:column;text-align:center}.connect-actions{justify-content:center}.monitor-grid{grid-template-columns:repeat(2,1fr)}.modal{max-height:90vh}}
 </style>
 </head>
 <body>
@@ -201,10 +227,120 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,san
         <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
         客户端下载
       </div>
+      <button class="btn" onclick="openGuide()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+        安装指南
+      </button>
     </div>
     <div class="card-body">
       <div class="download-grid" id="download-grid">
         <div class="loading"><div class="spinner"></div>加载中...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="guide-modal" onclick="closeGuide(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>TeamSpeak 3 使用指南</h3>
+      <button class="btn btn-icon" onclick="closeGuide()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>下载并安装客户端</h4>
+            <p>访问 <a href="https://www.teamspeak.com/downloads" target="_blank">TeamSpeak 官网</a> 下载对应系统的客户端，安装后启动。</p>
+            <div class="guide-tip">支持 Windows、macOS、Linux、Android、iOS。</div>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>连接服务器</h4>
+            <p>有两种方式连接：</p>
+            <p><strong>方式一：</strong>点击页面顶部的 <code>启动客户端</code> 按钮，自动唤起客户端连接。</p>
+            <p><strong>方式二：</strong>点击 <code>复制地址</code> 按钮，然后在客户端中：</p>
+            <div class="code-block">
+              <code>
+                1. 打开 TeamSpeak 客户端<br>
+                2. 点击菜单 连接 → 连接<br>
+                3. 在"服务器地址"粘贴复制的地址<br>
+                4. 点击"连接"
+              </code>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>设置昵称</h4>
+            <p>首次连接会提示输入昵称，也可以在客户端设置中修改默认昵称：</p>
+            <div class="code-block">
+              <code>设置 → 身份 → 默认昵称</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h4>切换频道</h4>
+            <p>双击左侧频道列表中的频道名称即可切换。部分频道需要密码才能进入。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h4>语音设置</h4>
+            <p>建议配置麦克风和扬声器以获得最佳体验：</p>
+            <div class="code-block">
+              <code>
+                设置 → 捕获 → 选择麦克风设备<br>
+                设置 → 回放 → 选择扬声器/耳机设备<br>
+                设置 → 捕获 → 设置按键说话（推荐）
+              </code>
+            </div>
+            <div class="guide-tip">推荐使用"按键说话"模式，避免背景噪音干扰他人。</div>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-number">6</div>
+          <div class="step-content">
+            <h4>常用快捷键</h4>
+            <div class="code-block">
+              <code>
+                Ctrl+Shift+M  → 静音/取消静音<br>
+                Ctrl+Shift+D  → 禁用/启用麦克风<br>
+                Ctrl+Shift+S  → 开关声音
+              </code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-faq">
+        <h4>常见问题</h4>
+        <div class="faq-item">
+          <strong>Q: 连接不上服务器？</strong>
+          <p>A: 检查网络是否正常，确认服务器地址和端口正确。部分公司/学校网络可能屏蔽了 TeamSpeak 端口。</p>
+        </div>
+        <div class="faq-item">
+          <strong>Q: 别人听不到我说话？</strong>
+          <p>A: 检查麦克风是否被系统静音，确认客户端中选择了正确的录音设备，检查是否设置了正确的按键。</p>
+        </div>
+        <div class="faq-item">
+          <strong>Q: 有回声或杂音？</strong>
+          <p>A: 在设置中开启回声消除和降噪功能，或使用耳机代替扬声器。</p>
+        </div>
       </div>
     </div>
   </div>
@@ -241,11 +377,15 @@ async function fetchJSON(url) {
 }
 
 async function loadConfig() {
-  const { siteName, host, voicePort, downloads } = await fetchJSON('/api/config');
-  serverConfig = { host, voicePort, downloads };
-  document.getElementById('site-name').textContent = siteName;
-  document.getElementById('connect-address').textContent = `${host}:${voicePort}`;
-  renderDownloads(downloads);
+  try {
+    const { siteName, host, voicePort, downloads } = await fetchJSON('/api/config');
+    serverConfig = { host, voicePort: voicePort || 9987, downloads };
+    document.getElementById('site-name').textContent = siteName || 'TS3 Web';
+    document.getElementById('connect-address').textContent = host || 'localhost';
+    renderDownloads(downloads);
+  } catch (e) {
+    document.getElementById('connect-address').textContent = '加载失败';
+  }
 }
 
 async function loadStatus() {
@@ -417,12 +557,24 @@ function escapeHtml(str) {
 }
 
 function copyAddress() {
-  const addr = `${serverConfig.host}:${serverConfig.voicePort}`;
-  navigator.clipboard.writeText(addr).then(() => showToast('地址已复制'));
+  const addr = serverConfig.host || 'localhost';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(addr).then(() => showToast('地址已复制'));
+  } else {
+    const input = document.createElement('input');
+    input.value = addr;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    showToast('地址已复制');
+  }
 }
 
 function launchClient() {
-  const url = `ts3server://${serverConfig.host}?port=${serverConfig.voicePort}`;
+  const host = serverConfig.host || 'localhost';
+  const port = serverConfig.voicePort || 9987;
+  const url = `ts3server://${host}?port=${port}`;
   window.location.href = url;
   showToast('正在启动 TeamSpeak 客户端...');
 }
@@ -434,17 +586,83 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
+function openGuide() {
+  document.getElementById('guide-modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGuide(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('guide-modal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+let themeInterval;
+
 function toggleTheme() {
   const html = document.documentElement;
   const current = html.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
+  const modes = ['auto', 'dark', 'light'];
+  const next = modes[(modes.indexOf(current) + 1) % 3];
   html.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
+  if (next === 'auto') {
+    applyAutoTheme();
+    if (!themeInterval) themeInterval = setInterval(applyAutoTheme, 60000);
+  } else {
+    html.removeAttribute('data-theme-real');
+    if (themeInterval) { clearInterval(themeInterval); themeInterval = null; }
+  }
+  updateThemeIcon(next);
+}
+
+function updateThemeIcon(mode) {
+  const icon = document.getElementById('theme-icon');
+  const paths = {
+    auto: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z',
+    dark: 'M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z',
+    light: 'M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z'
+  };
+  icon.innerHTML = `<path d="${paths[mode] || paths.auto}"/>`;
+}
+
+function getBeijingSunTimes() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const beijing = new Date(utc + 8 * 3600000);
+  const day = beijing.getDate();
+  const month = beijing.getMonth();
+  const dayOfYear = Math.floor((new Date(beijing.getFullYear(), month, day) - new Date(beijing.getFullYear(), 0, 0)) / 86400000);
+  const lat = 39.9042 * Math.PI / 180;
+  const decl = -23.45 * Math.cos(2 * Math.PI * (dayOfYear + 10) / 365) * Math.PI / 180;
+  const ha = Math.acos((-0.0145 - Math.sin(lat) * Math.sin(decl)) / (Math.cos(lat) * Math.cos(decl)));
+  const sunrise = 12 - ha * 180 / Math.PI / 15;
+  const sunset = 12 + ha * 180 / Math.PI / 15;
+  return { sunrise: Math.round(sunrise * 60), sunset: Math.round(sunset * 60) };
+}
+
+function isNight() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const beijing = new Date(utc + 8 * 3600000);
+  const minutes = beijing.getHours() * 60 + beijing.getMinutes();
+  const { sunrise, sunset } = getBeijingSunTimes();
+  return minutes < sunrise || minutes >= sunset;
+}
+
+function applyAutoTheme() {
+  const theme = isNight() ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme-real', theme);
 }
 
 function initTheme() {
-  const saved = localStorage.getItem('theme');
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  const saved = localStorage.getItem('theme') || 'auto';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+  if (saved === 'auto') {
+    applyAutoTheme();
+    themeInterval = setInterval(applyAutoTheme, 60000);
+  }
 }
 
 async function refreshAll() {
@@ -455,7 +673,7 @@ async function init() {
   initTheme();
   await loadConfig();
   await refreshAll();
-  refreshTimer = setInterval(refreshAll, 5000);
+  refreshTimer = setInterval(refreshAll, 10000);
 }
 
 init();
