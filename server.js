@@ -102,9 +102,12 @@ async function fetchServerData() {
     };
     const chMap = {};
     const tree = [];
+    console.log('频道数量:', channels.length);
     channels.forEach(ch => {
+      console.log('频道:', ch.cid, ch.channelName, ch.channelMaxclients);
       chMap[ch.cid] = { id: ch.cid, name: ch.channelName, parentId: ch.pid, order: ch.channelOrder, maxClients: ch.channelMaxclients, codec: ch.channelCodec, children: [] };
     });
+    console.log('chMap:', JSON.stringify(chMap));
     channels.forEach(ch => {
       if (ch.pid === '0') tree.push(chMap[ch.cid]);
       else if (chMap[ch.pid]) chMap[ch.pid].children.push(chMap[ch.cid]);
