@@ -103,11 +103,13 @@ async function fetchServerData() {
     const chMap = {};
     const tree = [];
     console.log('频道数量:', channels.length);
+    if (channels.length > 0) {
+      console.log('第一个频道的所有属性:', Object.keys(channels[0]));
+      console.log('第一个频道详情:', JSON.stringify(channels[0], null, 2));
+    }
     channels.forEach(ch => {
-      console.log('频道:', ch.cid, ch.channelName, ch.channelMaxclients);
-      chMap[ch.cid] = { id: ch.cid, name: ch.channelName, parentId: ch.pid, order: ch.channelOrder, maxClients: ch.channelMaxclients, codec: ch.channelCodec, children: [] };
+      chMap[ch.cid] = { id: ch.cid, name: ch.name, parentId: ch.pid, order: ch.order, maxClients: ch.maxClients, codec: ch.codec, children: [] };
     });
-    console.log('chMap:', JSON.stringify(chMap));
     channels.forEach(ch => {
       if (ch.pid === '0') tree.push(chMap[ch.cid]);
       else if (chMap[ch.pid]) chMap[ch.pid].children.push(chMap[ch.cid]);
