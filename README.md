@@ -16,6 +16,7 @@ TeamSpeak 3 服务器 Web 管理界面。
 - 服务器端数据缓存（10秒刷新）
 - 用户使用指南（含汉化教程）
 - 前端代码混淆保护
+- HMAC 动态 Token 认证
 
 ## 部署
 
@@ -58,6 +59,9 @@ TS3_SERVER_PORT=9987
 
 # Web 端口
 WEB_PORT=3000
+
+# API 密钥（留空则不启用鉴权）
+API_SECRET=你的密钥
 
 # 客户端下载地址
 DOWNLOAD_WINDOWS=https://www.teamspeak.com/downloads
@@ -105,6 +109,40 @@ pm2 startup
 ```env
 MOCK=true
 ```
+
+## API 鉴权
+
+项目支持 HMAC 动态 Token 认证，每次请求生成唯一签名。
+
+### 认证流程
+
+1. 前端生成 `timestamp`（时间戳）和 `nonce`（随机字符串）
+2. 使用 `HMAC-SHA256(secret, timestamp + nonce)` 生成签名
+3. 将签名放入请求 Header
+
+### 请求 Header
+
+| Header | 说明 |
+|--------|------|
+| `X-Api-Timestamp` | 时间戳（秒级） |
+| `X-Api-Nonce` | 随机字符串 |
+| `X-Api-Sign` | HMAC-SHA256 签名 |
+
+### 安全特性
+
+- 密钥不传输，只传签名
+- 每次请求签名不同（timestamp + nonce 变化）
+- 时间戳验证防重放攻击（30秒有效期）
+
+### 配置
+
+在 `.env` 中设置 `API_SECRET`：
+
+```env
+API_SECRET=你的密钥
+```
+
+留空则不启用鉴权。
 
 ## 开发指南
 
@@ -184,12 +222,12 @@ echo "你的IP" >> /path/to/teamspeak3-server/query_ip_allowlist.txt
 
 ## API
 
-| 端点 | 说明 |
-|------|------|
-| `GET /api/config` | 站点配置、下载地址、备用方案 |
-| `GET /api/status` | 服务器状态 |
-| `GET /api/channels` | 频道列表（树形） |
-| `GET /api/clients` | 在线用户列表 |
+| 端点 | 说明 | 鉴权 |
+|------|------|------|
+| `GET /api/config` | 站点配置、下载地址、备用方案 | 否 |
+| `GET /api/status` | 服务器状态 | 是 |
+| `GET /api/channels` | 频道列表（树形） | 是 |
+| `GET /api/clients` | 在线用户列表 | 是 |
 
 ## 开源仓库
 
